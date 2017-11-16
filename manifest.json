@@ -1,0 +1,26 @@
+{
+
+  "description": "Adds a simple button to inject a Xdebug cookie",
+  "manifest_version": 2,
+  "name": "Xdebug-ext",
+  "version": "1.0",
+  "homepage_url": "https://github.com/lhall-adexos/xdebug-ext",
+  "icons": {
+    "48": "data/icons/debug_48_active.png"
+  },
+
+  "permissions": [
+    "bookmarks",
+    "tabs"
+  ],
+
+  "browser_action": {
+    "default_icon": "data/icons/debug_32_inactive.png",
+    "default_title": "Xdebug"
+  },
+
+  "background": {
+    "scripts": ["background.js"]
+  }
+
+}
