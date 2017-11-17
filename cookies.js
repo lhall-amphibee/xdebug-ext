@@ -3,6 +3,11 @@
  */
 //console.log('cookies.js attached');
 
+let options = {
+    cookieName: "XDEBUG_SESSION",
+    cookieValue: "happydebug"
+}
+
 function createCookie(name, value, days) {
 	if (days) {
 		var date = new Date();
@@ -45,11 +50,13 @@ function isSet(name) {
 	return readCookie(name) !== null;
 }
 
-if (typeof self.options.checkCookies != "undefined") {
+console.log('Loading cookie.js');
+
+if (typeof options.checkCookies != "undefined") {
 	// tab changed or page loaded
 
 	var result = {};
-	for (var cookieName in self.options.checkCookies)
+	for (var cookieName in options.checkCookies)
 	{
 		result[cookieName] = isSet(cookieName);
 
@@ -57,7 +64,7 @@ if (typeof self.options.checkCookies != "undefined") {
 		if (isSet(cookieName))
 		{
 			var currentValue = readCookie(cookieName);
-			var newValue = self.options.checkCookies[cookieName];
+			var newValue = options.checkCookies[cookieName];
 			if (newValue != currentValue)
 			{
 				eraseCookie(cookieName);
@@ -66,13 +73,13 @@ if (typeof self.options.checkCookies != "undefined") {
 		}
 	}
 
-	self.postMessage({"result": result});
+	browser.runtime.sendMessage({"result": result});
 }
 else
 {
 	// widget button pressed
-	var cookieName = self.options.cookieName;
-	var cookieValue = self.options.cookieValue;
+	var cookieName = options.cookieName;
+	var cookieValue = options.cookieValue;
 
 	if (!isSet(cookieName))
 	{
@@ -88,17 +95,17 @@ else
 				alert('Please enable cookies for this page');
 			}
 
-			self.postMessage({"state": state});
+			browser.runtime.sendMessage({"state": state});
 		}
 		else
 		{
-			self.postMessage({"state": false});
+			browser.runtime.sendMessage({"state": false});
 		}
 	}
 	else
 	{
 		eraseCookie(cookieName);
-		self.postMessage({"state": false});
+		browser.runtime.sendMessage({"state": false});
 	}
 }
 

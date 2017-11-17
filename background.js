@@ -28,13 +28,21 @@ function updateIcon() {
  * Add or remove the bookmark on the current page.
  */
 function toggleBookmark() {
-    console.log('toggleBookmark')
-    browser.tabs.executeScript(
-        currentTab.id,
-        {
-            'file': 'data/cookies.js'
-        }
-    )
+    console.log('toggleBookmark');
+
+    function onExecuted(result) {
+        console.log('We executed in tab' + currentTab.id);
+    }
+
+    function onError(error) {
+        console.log(`Error: ${error}`);
+    }
+
+    var executing = browser.tabs.executeScript(
+        currentTab.id, {
+            file: "cookies.js"
+        });
+    executing.then(onExecuted, onError);
 }
 
 browser.browserAction.onClicked.addListener(toggleBookmark);
@@ -67,6 +75,20 @@ function updateActiveTab(tabs) {
 
 }
 
+function updateButton(result) {
+    var role = button.id.split("-").shift();
+
+    if (result) {
+        browser.browserAction.setTitle({
+            // Screen readers can see the title
+            title: currentBookmark ? 'Unbookmark it!' : 'Bookmark it!',
+            tabId: currentTab.id
+        });
+    } else {
+
+    }
+}
+
 // listen to tab URL changes
 browser.tabs.onUpdated.addListener(updateActiveTab);
 
@@ -77,6 +99,14 @@ browser.tabs.onActivated.addListener(updateActiveTab);
 browser.windows.onFocusChanged.addListener(updateActiveTab);
 
 browser.browserAction.onClicked.addListener(updateActiveTab);
+
+function notify(message) {
+    console.log(message);
+    updateButton(bDebug, message.state);
+}
+
+// Listen to content scripts messages
+browser.runtime.onMessage.addListener(notify);
 
 // update when the extension loads initially
 updateActiveTab();
