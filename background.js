@@ -1,37 +1,14 @@
 var currentTab;
 var currentBookmark;
-console.log('background.js loaded');
 
 /*
- * Updates the browserAction icon to reflect whether the current page
- * is already bookmarked.
+ * Enable or disable Debugging
  */
-function updateIcon() {
-    /*browser.browserAction.setIcon({
-        path: currentBookmark ? {
-            19: "icons/star-filled-19.png",
-            38: "icons/star-filled-38.png"
-        } : {
-            19: "icons/star-empty-19.png",
-            38: "icons/star-empty-38.png"
-        },
-        tabId: currentTab.id
-    });*/
-    browser.browserAction.setTitle({
-        // Screen readers can see the title
-        title: currentBookmark ? 'Unbookmark it!' : 'Bookmark it!',
-        tabId: currentTab.id
-    });
-}
-
-/*
- * Add or remove the bookmark on the current page.
- */
-function toggleBookmark() {
-    console.log('toggleBookmark');
+function toggleButton() {
+    console.log('toggleButton');
 
     function onExecuted(result) {
-        console.log('We executed in tab' + currentTab.id);
+        // Nothing to do here
     }
 
     function onError(error) {
@@ -45,12 +22,12 @@ function toggleBookmark() {
     executing.then(onExecuted, onError);
 }
 
-browser.browserAction.onClicked.addListener(toggleBookmark);
+browser.browserAction.onClicked.addListener(toggleButton);
 
 /*
- * Switches currentTab and currentBookmark to reflect the currently active tab
+ * Switches currentTab to reflect the currently active tab
  */
-function updateActiveTab(tabs) {
+function updateActiveTab() {
     console.log('updateActiveTab');
     function isSupportedProtocol(urlString) {
         var supportedProtocols = ["https:", "http:", "ftp:", "file:"];
@@ -76,17 +53,24 @@ function updateActiveTab(tabs) {
 }
 
 function updateButton(result) {
-    var role = button.id.split("-").shift();
+    console.log(browser.browserAction);
+console.log(currentTab);
 
-    if (result) {
-        browser.browserAction.setTitle({
-            // Screen readers can see the title
-            title: currentBookmark ? 'Unbookmark it!' : 'Bookmark it!',
-            tabId: currentTab.id
-        });
-    } else {
+    browser.browserAction.setIcon({
+        path: result ? {
+            32: "data/icons/debug_32_active.png",
+            48: "data/icons/debug_32_active.png"
+        } : {
+            32: "data/icons/debug_48_inactive.png",
+            48: "data/icons/debug_48_inactive.png"
+        },
+        tabId: currentTab.id
+    });
 
-    }
+    browser.browserAction.setTitle({
+        title: result ? 'Disable Debugging' : 'Enable Debugging',
+        tabId: currentTab.id
+    });
 }
 
 // listen to tab URL changes
@@ -98,11 +82,12 @@ browser.tabs.onActivated.addListener(updateActiveTab);
 // listen for window switching
 browser.windows.onFocusChanged.addListener(updateActiveTab);
 
+// Listen to button clicks
 browser.browserAction.onClicked.addListener(updateActiveTab);
 
 function notify(message) {
     console.log(message);
-    updateButton(bDebug, message.state);
+    updateButton(message.state);
 }
 
 // Listen to content scripts messages

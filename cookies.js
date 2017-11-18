@@ -1,12 +1,13 @@
 /* this is a CONTENT script that interact directly with web content
  * http://www.quirksmode.org/js/cookies.html
  */
-//console.log('cookies.js attached');
-
-let options = {
-    cookieName: "XDEBUG_SESSION",
-    cookieValue: "happydebug"
+if (typeof options === "undefined") {
+    var options = {
+        cookieName: "XDEBUG_SESSION",
+        cookieValue: "happydebug"
+    };
 }
+
 
 function createCookie(name, value, days) {
 	if (days) {
@@ -50,8 +51,6 @@ function isSet(name) {
 	return readCookie(name) !== null;
 }
 
-console.log('Loading cookie.js');
-
 if (typeof options.checkCookies != "undefined") {
 	// tab changed or page loaded
 
@@ -60,7 +59,7 @@ if (typeof options.checkCookies != "undefined") {
 	{
 		result[cookieName] = isSet(cookieName);
 
-		// if user changes values, we must immidiately update cookies after any tab changing or page loading
+		// if user changes values, we must immediately update cookies after any tab changing or page loading
 		if (isSet(cookieName))
 		{
 			var currentValue = readCookie(cookieName);
