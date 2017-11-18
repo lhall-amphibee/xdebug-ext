@@ -2,10 +2,29 @@
  * http://www.quirksmode.org/js/cookies.html
  */
 if (typeof options === "undefined") {
+    function onError(error) {
+        console.log(`Can't get var: ${error}`);
+    }
+
+    function onGot(item) {
+        var idekey = "PHPSTORM";
+        if (item.idekey) {
+            idekey = item.idekey;
+        }
+        options.checkCookies.XDEBUG_SESSION = idekey;
+    }
+
     var options = {
         cookieName: "XDEBUG_SESSION",
-        cookieValue: "happydebug"
+        checkCookies: {
+            XDEBUG_SESSION: '',
+            /*XDEBUG_TRACE: '',
+            XDEBUG_PROFILE: ''*/
+        }
     };
+
+    var getting = browser.storage.local.get("idekey");
+    getting.then(onGot, onError);
 }
 
 
@@ -19,6 +38,7 @@ function createCookie(name, value, days) {
 	}
 
 	if (typeof document.cookie != 'undefined') {
+        browser.runtime.sendMessage("Cookie " + name + " created with value " + value);
 		document.cookie = name + "=" + value + expires + "; path=/";
 	}
 }
@@ -59,6 +79,7 @@ if (userTriggered === false) {
 	var result = {};
 	for (var cookieName in options.checkCookies)
 	{
+        browser.runtime.sendMessage("Checking cookie " + cookieName);
 		result[cookieName] = isSet(cookieName);
 
 		// if user changes values, we must immediately update cookies after any tab changing or page loading
@@ -66,8 +87,10 @@ if (userTriggered === false) {
 		{
 			var currentValue = readCookie(cookieName);
 			var newValue = options.checkCookies[cookieName];
+            browser.runtime.sendMessage("Cookie found with value " + currentValue);
 			if (newValue != currentValue)
 			{
+                browser.runtime.sendMessage("Cookie values mismatch, resetting ("+ currentValue + " -> "+ newValue +")");
 				eraseCookie(cookieName);
 				createCookie(cookieName, newValue, 1);
 			}
@@ -80,11 +103,12 @@ else
 {
 	// widget button pressed
 	var cookieName = options.cookieName;
-	var cookieValue = options.cookieValue;
+	var cookieValue = options.checkCookies[cookieName];
     browser.runtime.sendMessage({"debug": 'Button pressed'});
 
 	if (!isSet(cookieName))
 	{
+        browser.runtime.sendMessage({"debug": 'Needs to be set'});
 		// sometimes URL is null e.g. when we're on about:addons under linux (is it true?)
 		if (typeof document.URL == 'string' && document.URL.substring(0, 4) == 'http')
 		{
@@ -106,6 +130,7 @@ else
 	}
 	else
 	{
+        browser.runtime.sendMessage({"debug": 'Needs to be removed'});
 		eraseCookie(cookieName);
 		browser.runtime.sendMessage({"state": false});
 	}

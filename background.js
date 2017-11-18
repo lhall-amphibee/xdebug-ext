@@ -17,7 +17,7 @@ function toggleButton(event) {
     }
 
     function onError(error) {
-        console.log(`Error: ${error}`);
+        console.log(`Can't execute script: ${error}, for current tab ID ` + currentTab.id);
     }
 
     var userTriggered = typeof event === 'object';
@@ -43,9 +43,9 @@ function updateActiveTab(e) {
     }
 
     function updateTab(tabs) {
-        console.log('updateTab');
         if (tabs[0]) {
             currentTab = tabs[0];
+            console.log('Current tab is ' + currentTab.id);
             if (isSupportedProtocol(currentTab.url)) {
                 toggleButton();
             }

@@ -10,8 +10,10 @@
   },
 
   "permissions": [
+    "<all_urls>",
     "tabs",
-    "activeTab"
+    "activeTab",
+    "storage"
   ],
 
   "browser_action": {
@@ -21,6 +23,10 @@
 
   "background": {
     "scripts": ["background.js"]
+  },
+
+  "options_ui": {
+    "page": "options.html"
   }
 
 }
