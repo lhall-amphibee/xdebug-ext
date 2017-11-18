@@ -51,7 +51,9 @@ function isSet(name) {
 	return readCookie(name) !== null;
 }
 
-if (typeof options.checkCookies != "undefined") {
+browser.runtime.sendMessage(options);
+browser.runtime.sendMessage({currentState: currentState, userTriggered: userTriggered});
+if (userTriggered === false) {
 	// tab changed or page loaded
 
 	var result = {};
@@ -79,6 +81,7 @@ else
 	// widget button pressed
 	var cookieName = options.cookieName;
 	var cookieValue = options.cookieValue;
+    browser.runtime.sendMessage({"debug": 'Button pressed'});
 
 	if (!isSet(cookieName))
 	{

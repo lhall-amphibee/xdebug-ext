@@ -1,23 +1,29 @@
 var currentTab;
-var currentBookmark;
+var currentState;
 
 /*
  * Enable or disable Debugging
  */
-function toggleButton() {
+function toggleButton(event) {
     console.log('toggleButton');
+    console.log(typeof event);
+    console.log(event);
 
     function onExecuted(result) {
-        // Nothing to do here
+        browser.tabs.executeScript(
+            currentTab.id, {
+                file: "cookies.js"
+            });
     }
 
     function onError(error) {
         console.log(`Error: ${error}`);
     }
 
+    var userTriggered = typeof event === 'object';
     var executing = browser.tabs.executeScript(
         currentTab.id, {
-            file: "cookies.js"
+            code: "var currentState = "+ currentState +"; var userTriggered = " + userTriggered + ";"
         });
     executing.then(onExecuted, onError);
 }
@@ -27,8 +33,8 @@ browser.browserAction.onClicked.addListener(toggleButton);
 /*
  * Switches currentTab to reflect the currently active tab
  */
-function updateActiveTab() {
-    console.log('updateActiveTab');
+function updateActiveTab(e) {
+    console.log('Event', e);
     function isSupportedProtocol(urlString) {
         var supportedProtocols = ["https:", "http:", "ftp:", "file:"];
         var url = document.createElement('a');
@@ -37,12 +43,11 @@ function updateActiveTab() {
     }
 
     function updateTab(tabs) {
+        console.log('updateTab');
         if (tabs[0]) {
             currentTab = tabs[0];
             if (isSupportedProtocol(currentTab.url)) {
-                //updateIcon();
-            } else {
-                console.log(`Bookmark it! does not support the '${currentTab.url}' URL.`)
+                toggleButton();
             }
         }
     }
@@ -53,8 +58,10 @@ function updateActiveTab() {
 }
 
 function updateButton(result) {
-    console.log(browser.browserAction);
-console.log(currentTab);
+    if (typeof currentTab.id === 'undefined') {
+        console.log('No current tab yet')
+        return;
+    }
 
     browser.browserAction.setIcon({
         path: result ? {
@@ -83,11 +90,14 @@ browser.tabs.onActivated.addListener(updateActiveTab);
 browser.windows.onFocusChanged.addListener(updateActiveTab);
 
 // Listen to button clicks
-browser.browserAction.onClicked.addListener(updateActiveTab);
+//browser.browserAction.onClicked.addListener(updateActiveTab);
 
 function notify(message) {
     console.log(message);
-    updateButton(message.state);
+    if (typeof message.state !== 'undefined') {
+        updateButton(message.state);
+        currentState = message.state;
+    }
 }
 
 // Listen to content scripts messages
