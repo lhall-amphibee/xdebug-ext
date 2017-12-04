@@ -97,7 +97,7 @@ if (userTriggered === false) {
 		}
 	}
 
-	browser.runtime.sendMessage({"result": result});
+	browser.runtime.sendMessage({"state": result[cookieName]});
 }
 else
 {
