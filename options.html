@@ -3,13 +3,38 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="styles.css" media="all">
 </head>
 
-<body>
+<body class="options">
 
 <form>
-    <label>IDE Key<input type="text" id="idekey"></label>
-    <button type="submit">Save</button>
+    <h1>Extension options</h1>
+    <p class="lear-more">
+        Learn how to setup your webserver and use Xdebug : <a href="https://deliciousbrains.com/xdebug-advanced-php-debugging/">Learn more</a>.
+
+    </p>
+    <ul>
+        <li>
+            <h2>XDEBUG_SESSION Cookie</h2>
+            <p class="hint">Xdebug cookie to allow you debugging of your application at runtime. This is the most common usage and is always enabled. IDE key should match your server configuration.</p>
+            <label>IDE Key : <input type="text" id="idekey"></label>
+
+        </li>
+        <li>
+            <h2>XDEBUG_TRACE Cookie</h2>
+            <p class="hint">Adds a new icon to your toolbar to enable tracing.</p>
+            <label><input type="checkbox" id="trace"> Enable</label>
+        </li>
+        <li>
+            <h2>XDEBUG_PROFILE Cookie</h2>
+            <p class="hint">Adds a new icon to your toolbar to enable profiling. Use it with a tool like <a href="https://github.com/KDE/kcachegrind">KCacheGrind</a>.</p>
+            <label><input type="checkbox" id="profile"> Enable</label>
+        </li>
+    </ul>
+    <div class="buttons">
+        <button type="submit">Save</button>
+    </div>
 </form>
 
 <script src="options.js"></script>
