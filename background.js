@@ -5,10 +5,6 @@ var currentState;
  * Enable or disable Debugging
  */
 function toggleButton(event) {
-    console.log('toggleButton');
-    console.log(typeof event);
-    console.log(event);
-
     function onExecuted(result) {
         browser.tabs.executeScript(
             currentTab.id, {
@@ -34,7 +30,6 @@ browser.browserAction.onClicked.addListener(toggleButton);
  * Switches currentTab to reflect the currently active tab
  */
 function updateActiveTab(e) {
-    console.log('Event', e);
     function isSupportedProtocol(urlString) {
         var supportedProtocols = ["https:", "http:", "ftp:", "file:"];
         var url = document.createElement('a');
@@ -92,11 +87,53 @@ browser.windows.onFocusChanged.addListener(updateActiveTab);
 // Listen to button clicks
 //browser.browserAction.onClicked.addListener(updateActiveTab);
 
+function getActiveTab() {
+    return browser.tabs.query({active: true, currentWindow: true});
+}
+
 function notify(message) {
-    console.log(message);
     if (typeof message.state !== 'undefined') {
         updateButton(message.state);
         currentState = message.state;
+    }
+
+    if (typeof message.createCookie !== 'undefined') {
+        console.log('--------- createCookie ----------');
+        console.log(message.createCookie);
+        var expires = "";
+        if (message.createCookie.days && parseInt(message.createCookie.days) > 0) {
+            var date = new Date();
+            date.setTime(date.getTime()+(message.createCookie.days*24*60*60*1000));
+            expires = date.toGMTString();
+        }
+        getActiveTab().then((tabs) => {
+            browser.cookies.set({
+                url: tabs[0].url,
+                name: message.createCookie.name,
+                value: message.createCookie.value,
+                expirationDate: expires,
+                path: '/'
+            })
+        });
+    }
+
+    if (typeof message.removeCookie !== 'undefined') {
+        getActiveTab().then((tabs) => {
+            // get any previously set cookie for the current tab
+            var gettingCookies = browser.cookies.get({
+                url: tabs[0].url,
+                name: message.removeCookie
+            });
+            gettingCookies.then((cookie) => {
+                console.log(cookie);
+                if (cookie) {
+                    browser.cookies.remove({
+                        url: tabs[0].url,
+                        name: message.removeCookie
+                    });
+                }
+            });
+        });
     }
 }
 

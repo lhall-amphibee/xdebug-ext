@@ -29,18 +29,13 @@ if (typeof options === "undefined") {
 
 
 function createCookie(name, value, days) {
-	if (days) {
-		var date = new Date();
-		date.setTime(date.getTime()+(days*24*60*60*1000));
-		var expires = "; expires=" + date.toGMTString();
-	} else {
-		var expires = "";
-	}
-
-	if (typeof document.cookie != 'undefined') {
-        browser.runtime.sendMessage("Cookie " + name + " created with value " + value);
-		document.cookie = name + "=" + value + expires + "; path=/";
-	}
+    browser.runtime.sendMessage({
+		"createCookie": {
+    		"name": name,
+			"value": value,
+			"days": days
+		}
+    });
 }
 
 function readCookie(name) {
@@ -64,7 +59,7 @@ function readCookie(name) {
 }
 
 function eraseCookie(name) {
-	createCookie(name, "", -1);
+    browser.runtime.sendMessage({"removeCookie": name});
 }
 
 function isSet(name) {
@@ -83,7 +78,7 @@ if (userTriggered === false) {
 		result[cookieName] = isSet(cookieName);
 
 		// if user changes values, we must immediately update cookies after any tab changing or page loading
-		if (isSet(cookieName))
+		/*if (isSet(cookieName))
 		{
 			var currentValue = readCookie(cookieName);
 			var newValue = options.checkCookies[cookieName];
@@ -94,7 +89,7 @@ if (userTriggered === false) {
 				eraseCookie(cookieName);
 				createCookie(cookieName, newValue, 1);
 			}
-		}
+		}*/
 	}
 
 	browser.runtime.sendMessage({"state": result[cookieName]});
