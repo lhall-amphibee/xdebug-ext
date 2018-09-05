@@ -38,32 +38,16 @@ function createCookie(name, value, days) {
     });
 }
 
-function readCookie(name) {
-	var nameEQ = name + "=";
-
-	if (typeof document.cookie == 'undefined') {
-		//console.log('this doc has no cookies');
-		return null;
-	}
-
-	var ca = document.cookie.split(';');
-	for (var i=0;i < ca.length;i++) {
-		var c = ca[i];
-		while (c.charAt(0)==' ')
-			c = c.substring(1,c.length);
-		if (c.indexOf(nameEQ) == 0)
-			return c.substring(nameEQ.length,c.length);
-	}
-
-	return null;
-}
-
 function eraseCookie(name) {
     browser.runtime.sendMessage({"removeCookie": name});
 }
 
 function isSet(name) {
-	return readCookie(name) !== null;
+    return browser.runtime.sendMessage({"checkCookie": name}).then(function (message) {
+    	console.log('BG script response');
+    	console.log(message);
+		return message;
+    });
 }
 
 browser.runtime.sendMessage(options);
@@ -107,12 +91,12 @@ else
 		// sometimes URL is null e.g. when we're on about:addons under linux (is it true?)
 		if (typeof document.URL == 'string' && document.URL.substring(0, 4) == 'http')
 		{
-			createCookie(cookieName, cookieValue, 1);
+			createCookie(cookieName, cookieValue, 7);
 
 			// Cookies can be disabled
 			var state = isSet(cookieName);
 			if (!state) {
-//				console.log('Couldnt set cookie! url: '+document.URL);
+				//console.log('Couldnt set cookie! url: '+document.URL);
 				alert('Please enable cookies for this page');
 			}
 

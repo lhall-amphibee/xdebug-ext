@@ -91,7 +91,7 @@ function getActiveTab() {
     return browser.tabs.query({active: true, currentWindow: true});
 }
 
-function notify(message) {
+function notify(message, sender, sendResponse) {
     if (typeof message.state !== 'undefined') {
         updateButton(message.state);
         currentState = message.state;
@@ -104,9 +104,10 @@ function notify(message) {
         if (message.createCookie.days && parseInt(message.createCookie.days) > 0) {
             var date = new Date();
             date.setTime(date.getTime()+(message.createCookie.days*24*60*60*1000));
-            expires = date.toGMTString();
+            expires = parseInt((date.getTime() / 1000).toFixed(0));
         }
         getActiveTab().then((tabs) => {
+            console.log('Creating cookie ...' + ' ' + expires);
             browser.cookies.set({
                 url: tabs[0].url,
                 name: message.createCookie.name,
@@ -132,6 +133,21 @@ function notify(message) {
                         name: message.removeCookie
                     });
                 }
+            });
+        });
+    }
+
+    if (typeof message.checkCookie !== 'undefined') {
+        console.log('checking cookie ' + message.checkCookie);
+        return getActiveTab().then((tabs) => {
+            // get any previously set cookie for the current tab
+            return browser.cookies.get({
+                url: tabs[0].url,
+                name: message.checkCookie
+            }).then((cookie) => {
+                console.log('checked : ');
+                console.log(cookie);
+                return cookie !== null;
             });
         });
     }
