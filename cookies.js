@@ -42,24 +42,23 @@ function eraseCookie(name) {
     browser.runtime.sendMessage({"removeCookie": name});
 }
 
-function isSet(name) {
-    return browser.runtime.sendMessage({"checkCookie": name}).then(function (message) {
-    	console.log('BG script response');
-    	console.log(message);
-		return message;
-    });
-}
-
-browser.runtime.sendMessage(options);
-browser.runtime.sendMessage({currentState: currentState, userTriggered: userTriggered});
+//browser.runtime.sendMessage(options);
+//browser.runtime.sendMessage({currentState: currentState, userTriggered: userTriggered});
 if (userTriggered === false) {
 	// tab changed or page loaded
 
 	var result = {};
 	for (var cookieName in options.checkCookies)
 	{
-        browser.runtime.sendMessage("Checking cookie " + cookieName);
-		result[cookieName] = isSet(cookieName);
+        //var currentValue = readCookie(cookieName);
+        /*let newValue = options.checkCookies[cookieName];
+        let response = browser.runtime.sendMessage({
+            "checkCookie": {
+                'name' : cookieName,
+                'value' : newValue,
+                'days' : 7
+            }
+        });*/
 
 		// if user changes values, we must immediately update cookies after any tab changing or page loading
 		/*if (isSet(cookieName))
@@ -75,17 +74,22 @@ if (userTriggered === false) {
 			}
 		}*/
 	}
-
-	browser.runtime.sendMessage({"state": result[cookieName]});
 }
 else
 {
 	// widget button pressed
 	var cookieName = options.cookieName;
 	var cookieValue = options.checkCookies[cookieName];
-    browser.runtime.sendMessage({"debug": 'Button pressed'});
 
-	if (!isSet(cookieName))
+    let response = browser.runtime.sendMessage({
+        "toggleCookie": {
+            'name' : cookieName,
+            'value' : cookieValue,
+            'days' : 7
+        }
+    });
+
+	/*if (!isSet(cookieName))
 	{
         browser.runtime.sendMessage({"debug": 'Needs to be set'});
 		// sometimes URL is null e.g. when we're on about:addons under linux (is it true?)
@@ -112,6 +116,20 @@ else
         browser.runtime.sendMessage({"debug": 'Needs to be removed'});
 		eraseCookie(cookieName);
 		browser.runtime.sendMessage({"state": false});
-	}
+	}*/
 }
 
+function updateUI(response) {
+    console.log('Got status from bg script');
+    console.log(response);
+}
+
+function handleError() {
+    
+}
+
+browser.runtime.onMessage.addListener(response => {
+  console.log("Message from the background script:");
+  console.log(response);
+    browser.runtime.sendMessage({"state": response.status});
+});

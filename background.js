@@ -53,8 +53,9 @@ function updateActiveTab(e) {
 }
 
 function updateButton(result) {
+    console.log('updating button');
     if (typeof currentTab.id === 'undefined') {
-        console.log('No current tab yet')
+        console.log('No current tab yet');
         return;
     }
 
@@ -91,31 +92,61 @@ function getActiveTab() {
     return browser.tabs.query({active: true, currentWindow: true});
 }
 
+function createCookie(tab, cookie) {
+    console.log('--------- createCookie ----------');
+    console.log(cookie);
+    var expires = "";
+    if (cookie.days && parseInt(cookie.days) > 0) {
+        var date = new Date();
+        date.setTime(date.getTime()+(cookie.days*24*60*60*1000));
+        expires = parseInt((date.getTime() / 1000).toFixed(0));
+    }
+    getActiveTab().then((tabs) => {
+        console.log('Creating cookie ...' + ' ' + expires);
+        browser.cookies.set({
+            url: tab.url,
+            name: cookie.name,
+            value: cookie.value,
+            expirationDate: expires,
+            path: '/'
+        })
+        updateButton(true);
+        currentState = true;
+    });
+}
+
+function removeCookie(tab, name) {
+    console.log('removing cookie ' + name + ' from ' + tab.url);
+    // get any previously set cookie for the current tab
+    var gettingCookies = browser.cookies.get({
+        url: tab.url,
+        name: name
+    });
+    gettingCookies.then((cookie) => {
+        console.log("Cookie found, now remove");
+        if (cookie) {
+            browser.cookies.remove({
+                url: tab.url,
+                name: name
+            });
+            updateButton(false);
+            currentState = false;
+        }
+    });
+}
+
 function notify(message, sender, sendResponse) {
+    console.log(message);
+    console.log(sender);
+    console.log(sendResponse);
+
     if (typeof message.state !== 'undefined') {
         updateButton(message.state);
         currentState = message.state;
     }
 
     if (typeof message.createCookie !== 'undefined') {
-        console.log('--------- createCookie ----------');
-        console.log(message.createCookie);
-        var expires = "";
-        if (message.createCookie.days && parseInt(message.createCookie.days) > 0) {
-            var date = new Date();
-            date.setTime(date.getTime()+(message.createCookie.days*24*60*60*1000));
-            expires = parseInt((date.getTime() / 1000).toFixed(0));
-        }
-        getActiveTab().then((tabs) => {
-            console.log('Creating cookie ...' + ' ' + expires);
-            browser.cookies.set({
-                url: tabs[0].url,
-                name: message.createCookie.name,
-                value: message.createCookie.value,
-                expirationDate: expires,
-                path: '/'
-            })
-        });
+        createCookie(message);
     }
 
     if (typeof message.removeCookie !== 'undefined') {
@@ -138,19 +169,39 @@ function notify(message, sender, sendResponse) {
     }
 
     if (typeof message.checkCookie !== 'undefined') {
-        console.log('checking cookie ' + message.checkCookie);
-        return getActiveTab().then((tabs) => {
-            // get any previously set cookie for the current tab
-            return browser.cookies.get({
-                url: tabs[0].url,
-                name: message.checkCookie
-            }).then((cookie) => {
-                console.log('checked : ');
-                console.log(cookie);
-                return cookie !== null;
-            });
+        console.log('checking cookie ');
+        console.log(message.checkCookie);
+
+        // get any previously set cookie for the current tab
+        let test =  browser.cookies.get({
+            url: sender.tab.url,
+            name: message.checkCookie.name
+        }).then((cookie) => {
+            let response = { 'status' : cookie !== null };
+            browser.tabs.sendMessage(sender.tab.id, response);
+        });
+        sendResponse({response: "Response from background script", 'test' :test});
+    }
+
+    if (typeof message.toggleCookie !== 'undefined') {
+        console.log('toggle cookie ');
+        console.log(message.toggleCookie);
+
+        // get any previously set cookie for the current tab
+        browser.cookies.get({
+            url: sender.tab.url,
+            name: message.toggleCookie.name
+        }).then((cookie) => {
+            if (cookie === null) {
+                console.log('Create cookie');
+                createCookie(sender.tab, message.toggleCookie);
+            } else {
+                console.log('Remove cookie');
+                removeCookie(sender.tab, message.toggleCookie.name)
+            }
         });
     }
+    return;
 }
 
 // Listen to content scripts messages
