@@ -109,7 +109,7 @@ function createCookie(tab, cookie) {
             value: cookie.value,
             expirationDate: expires,
             path: '/'
-        })
+        });
         updateButton(true);
         currentState = true;
     });
