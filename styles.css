@@ -1,0 +1,39 @@
+body.options {
+    background-color: rgba(217, 222, 255, 0.7);
+    padding: 20px;
+}
+
+h1 {
+    margin-top: 0;
+}
+
+.options ul {
+    margin: 0;
+    padding: 0;
+}
+.options ul li {
+    list-style: none;
+    border-left: 3px solid #1726b8;
+    padding: 10px 0 10px 15px;
+    margin-bottom: 15px;
+    background: white;
+}
+.options ul li:nth-of-type(2) {
+    border-color: #1d6218;
+}
+.options ul li:nth-of-type(3) {
+    border-color: #892d1e;
+}
+.options ul li h2 { padding : 0; margin: 0;}
+.options ul li input[type=checkbox] {
+    -moz-transform: scale(1.5); /* FF */
+    -webkit-transform: scale(1.5); /* Safari and Chrome */
+    padding: 10px;
+    margin-right: 10px;
+}
+.options .buttons { text-align: left; }
+.options form button[type=submit] {
+    font-size: 1.3em;
+    width: 15%;
+    text-align: center;
+}

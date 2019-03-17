@@ -3,13 +3,28 @@
 <html>
 <head>
     <meta charset="utf-8">
+    <link rel="stylesheet" href="styles.css" media="all">
 </head>
 
-<body>
+<body class="options">
 
 <form>
-    <label>IDE Key<input type="text" id="idekey"></label>
-    <button type="submit">Save</button>
+    <h1>Extension options</h1>
+    <p class="learn-more">
+        Learn how to setup your web server and use Xdebug : <a href="https://deliciousbrains.com/xdebug-advanced-php-debugging/">Learn more</a>.
+
+    </p>
+    <ul>
+        <li>
+            <h2>XDEBUG_SESSION Cookie</h2>
+            <p class="hint">Xdebug cookie to allow you debugging of your application at runtime. IDE key should match your server configuration.</p>
+            <label>IDE Key : <input type="text" id="idekey"></label>
+
+        </li>
+    </ul>
+    <div class="buttons">
+        <button type="submit">Save</button>
+    </div>
 </form>
 
 <script src="options.js"></script>
