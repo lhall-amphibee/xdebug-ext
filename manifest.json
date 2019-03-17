@@ -1,6 +1,6 @@
 {
 
-  "description": "Adds a simple button to inject a Xdebug cookie",
+  "description": "Adds a simple button to inject a Xdebug cookie.",
   "manifest_version": 2,
   "name": "Xdebug-ext",
   "version": "1.1",
