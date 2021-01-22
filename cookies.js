@@ -39,7 +39,7 @@ function createCookie(name, value, days) {
 
 	if (typeof document.cookie != 'undefined') {
         browser.runtime.sendMessage("Cookie " + name + " created with value " + value);
-		document.cookie = name + "=" + value + expires + "; path=/";
+		document.cookie = name + "=" + value + expires + "; path=/; sameSite=Lax";
 	}
 }
 
